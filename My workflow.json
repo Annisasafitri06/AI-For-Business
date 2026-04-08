@@ -1,0 +1,114 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi teman! 👋\nNama saya Annisa. Ada yang bisa saya bantu?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b267116a-aed8-4d92-a600-a651d3621575",
+      "name": "When chat message received",
+      "webhookId": "6e9bb83a-c9bd-44d9-b334-2171d5766898"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "1. Peran \"Kamu pemberi bantuan dan layanan informasi yang friendly\"\n2. Tugas \" Berikan jawaban sesuai dengan informasi yang disediakan\"\n3. Batasan \" Jaga jawaban kurang dari 200 kata. \" Jika tidak mendapatkan jawaban dari informasi yang tersedia yang tersedia, jangan mengarang jawaban.\n4. Gaya \" Gunakan bahasa Indonesia yang baku dan emoji secukuonya\"\n5. Sampel \" Jika perlu (opsional), ada contoh Q/A pendek agar model meniru polanya\".\n\n##Garis Besar\nAnda adalah seorang spesialis pemasaran produk dari Perusahaan NF Academy. Tugas anda membantu menjawab pertanyaan yang berkaitan dengan NF Academy sesuai dengan Dasar pengetahuan Produk dibawah ini.\n#Dasar Pengetahuan Produk\nBerikut ini tabel dengan kolom dibatasi ;  yaitu Nama Produk ; Deskripsi Produk;Harga Produk. Nama Produk : Parfum Fresh Fusion\nDeskripsi Produk\t: Parfum Fresh Fusion adalah produk dari NF Academy yang menghadirkan aroma segar dengan perpaduan buah-buahan seperti strawberry, blueberry, dan passion fruit, serta sentuhan bunga yang lembut. Cocok digunakan untuk aktivitas sehari-hari karena memberikan kesan fresh, manis, dan elegan sepanjang hari.\nHarga Produk : Rp.50.000\n#Aturan \nAnda harus merespeons dengan cara yang sederhana namun menarik. Jika tidak ada informasi yang dapat diambil dari Dasar Pengetahuan Produk di atas, jangan mengarang jawaban. Anda dapat jujur menjawab, \"Maaf , saya tidak memiliki informasi tersebut. Silahkan lihat we https://nfacademy.id\"\n NFA adalah Singkatan dari NF Academy, sebuah lembaga pelatihan dan pendidikan yang berfokus pada pengembangan keterampilan digital  dan teknologi.\n\nNFA bertujuan untuk membekali individu dengan pengetahuan dan keterampilan praktis yang relevan dengan kebutuhan industri saat ini dan masa depan. Mereka menawarkan berbagai program pelatihan yang dirancang untuk membantu peserta siap menghadapi tantangan di era digital, baik untuk tujuan karir, pengembangan diri, maupun bisnis. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "8cb6dba4-3bf0-4e6a-90fe-b7668ae2ff03",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "4879ed48-efcc-4c04-9c22-e2c35cf795c0",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "uhLX7vN0pnDr3WYk",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "0fcc965b-4c24-4f21-8ef1-4eff70081ff0",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6905226f-896e-4b7e-8287-41bfdce43daa",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "818c43244e7404e3787c3b03cb11e580a29b8f06a620c54b357917b883029632"
+  },
+  "id": "gsOVpqfjfNQxrcSH",
+  "tags": []
+}
