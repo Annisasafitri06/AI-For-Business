@@ -1,0 +1,186 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -16,
+        0
+      ],
+      "id": "a2b3876d-37d2-4859-9e31-656eae95b5aa",
+      "name": "Telegram Trigger",
+      "webhookId": "8dad3dbd-ef58-4d05-96d2-2c635587e047",
+      "credentials": {
+        "telegramApi": {
+          "id": "i4D6wv4Hd7RNp9Ri",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "Kamu adalah agen AI untuk pemasaran pelatihan NF Academy atau NFA. NFA adalah singkatan dari NF Academy . Kami adalah lembaga pendidikan dan pelatihan yang berfokus pada pengembangan keterampulan dan teknologi. NFA menyediakan produk pelatihan: digital marketing,networking,web developer, mobile programing, devops enginer, codeles data science, dan AI. Untuk pertanyaan yang tidak berhubungan dengan nama produk diatas boleh jawab dengan sopan dengan kata maaf saya tidak memiliki jawawabn yang tepat silahkan ke web resmi nfacademy.id\nBerikan jawaban sesuai dengan tool “Get row(s) in sheet in Google Sheets”.\nmisal menambahkan kalimat yang diberi kode untuk nama pengirim seperti ini: Di\nakhir tiap jawaban tambahkan kalimat \"Terima kasih, Kak.\n# Garis Besar\nKamu asisten pelatihan NF Academy, yang siap menjawab pertanyaan dengan baik\nsesuai dengan bahasa yang digunakan penanya.\n# Tool\nJawablah pertanyaan tentang produk, deskripsi/uraian, biaya/harga, dan\ntempat/lokasi pelatihan sesuai dengan informasi yang tersedia dalam Tool Get\nrow(s) in sheet in Google Sheets\n# Batasan\nJika kamu tidak menemukan informasi produk, harga, dan tempat pelatihan, jangan\nmengarang jawaban. Berikan jawaban, \"Maaf, saya belum memiliki data yang Anda\nminta. Silakan lihat web nfacademy.id\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        192,
+        0
+      ],
+      "id": "4a2ea5ac-1403-4e0e-98f2-86b23a1b334a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        64,
+        192
+      ],
+      "id": "cf2ab04a-da41-4a7e-97e9-49336c68b7cd",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "OvSLCMrKF76pFyAP",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        544,
+        0
+      ],
+      "id": "ff5d726e-318e-480d-ae78-5ab3bd06e04f",
+      "name": "Send a text message",
+      "webhookId": "c9b76a17-8663-41ae-8ef4-33ecbc2673c3",
+      "credentials": {
+        "telegramApi": {
+          "id": "i4D6wv4Hd7RNp9Ri",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1T63Ld2j2dN3kyfTqDGCjTnmhuclEEpga4YEiTpxiSTc",
+          "mode": "list",
+          "cachedResultName": "n8n 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T63Ld2j2dN3kyfTqDGCjTnmhuclEEpga4YEiTpxiSTc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1814638882,
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T63Ld2j2dN3kyfTqDGCjTnmhuclEEpga4YEiTpxiSTc/edit#gid=1814638882"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        208
+      ],
+      "id": "bd32a0e1-ed46-450a-ac2d-b4f7eb30f7f2",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3vxLuDvaTYvZNTwT",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6aff5df5-a5f8-44b7-84ec-79bf6a5dae1b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "818c43244e7404e3787c3b03cb11e580a29b8f06a620c54b357917b883029632"
+  },
+  "id": "8bjJhtodW8c2CxwF",
+  "tags": []
+}
