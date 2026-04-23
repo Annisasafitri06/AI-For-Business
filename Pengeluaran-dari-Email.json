@@ -1,0 +1,401 @@
+{
+  "name": "Pengeluaran-dari-Email",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "49c18bfe-773f-4527-aa81-ead0e3ae60ac",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "25r9tQywSULFvaTv",
+          "name": "IMAP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.from}}",
+                    "rightValue": "anni23185si@student.nurulfikri.ac.id",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "1b006809-08ea-4f8e-b125-4a3b8fa4c4e5"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "IDCloudHost"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d9441ca7-8f4f-447d-b46f-99b75274c60a",
+                    "leftValue": "={{$json.from}}",
+                    "rightValue": "anni23185si@student.nurulfikri.ac.id",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Grab"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f55d2d2f-f8e2-4227-b718-df20fce8a5a5",
+                    "leftValue": "={{$json.from}}",
+                    "rightValue": "anni23185si@student.nurulfikri.ac.id",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Tokopedia"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        -16
+      ],
+      "id": "e5c91fd1-b94f-4180-b430-639b69ce371d",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ead0db91-c245-4a3e-a0f8-c41774025a70",
+              "name": "Tanggal",
+              "value": "={{ $('Email Trigger (IMAP)').item.json.date }}",
+              "type": "string"
+            },
+            {
+              "id": "3c1de2ae-2a7c-49b6-96a2-f4d7948a48b1",
+              "name": "Jumlah",
+              "value": "={{ $json.textPlain.match(/Total Tarif.*?([\\d\\.]+)/s)?.[1].replace(/\\./g, '') }}",
+              "type": "string"
+            },
+            {
+              "id": "f7f35e00-445b-4059-98c8-27f8715d50de",
+              "name": "Nominal",
+              "value": "Grab",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        0
+      ],
+      "id": "0c667c13-0e7f-45d5-bafa-3f3066e8547b",
+      "name": "Grab"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b2aac8eb-7249-4fd5-a6a1-d9893e32f5dd",
+              "name": "Tanggal",
+              "value": "={{ $('Email Trigger (IMAP)').item.json.date }}",
+              "type": "string"
+            },
+            {
+              "id": "ec5fe382-9d23-4f1d-a112-ff9328ced179",
+              "name": "Jumlah",
+              "value": "={{ ($json.textPlain.match(/Total Tagihan:\\*?\\s*(\\d+)/) || [])[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "21e435cc-4a97-4c12-bfb5-1f95ec4621d8",
+              "name": "Nominal",
+              "value": "Cloud",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        -144
+      ],
+      "id": "5a7426a3-bfbc-42d4-b638-8fca3bf89516",
+      "name": "IDCloudHost"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3954e8a3-2b26-4ab6-828e-fd60b853f34f",
+              "name": "Tanggal",
+              "value": "={{ $('Email Trigger (IMAP)').item.json.date }}",
+              "type": "string"
+            },
+            {
+              "id": "34ce12f5-e6f2-47e4-8021-b0b233934aeb",
+              "name": "Jumlah",
+              "value": "={{ $json.textPlain.match(/Harga\\s*Rp([\\d\\.]+)/)?.[ 1].replace(/\\./g, '') }}",
+              "type": "string"
+            },
+            {
+              "id": "f36ec515-556b-4b4f-ad9a-52014f8cbeac",
+              "name": "Nominal",
+              "value": "={{ $json.textPlain.match(/Nominal\\s*(.*?)\\s*Wak tu/s)?.[1].trim() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        144
+      ],
+      "id": "0a927362-7d66-4d88-8759-4cf5a9f53509",
+      "name": "Tokopedia"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        784,
+        -16
+      ],
+      "id": "3161f9c0-80fc-4c4f-a3ff-a42a3625bcaf",
+      "name": "Merge",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1jbmbxOYZJ-mPcRdM_0yj9dEiRruVkRjKp5NxA9Fk2DA",
+          "mode": "list",
+          "cachedResultName": "Pencatan Keuangan dari Email",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jbmbxOYZJ-mPcRdM_0yj9dEiRruVkRjKp5NxA9Fk2DA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jbmbxOYZJ-mPcRdM_0yj9dEiRruVkRjKp5NxA9Fk2DA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Tanggal": "={{ $('IDCloudHost').item.json.Tanggal }}",
+            "Jumlah": "={{ $('IDCloudHost').item.json.Jumlah }}",
+            "Produk": "={{ $('IDCloudHost').item.json.Nominal }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Tanggal",
+              "displayName": "Tanggal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Jumlah",
+              "displayName": "Jumlah",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Produk",
+              "displayName": "Produk",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        992,
+        -16
+      ],
+      "id": "94c0a721-8820-4f93-800f-c44f757f652a",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YG0E2T0iwa4JdO66",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "IDCloudHost",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Grab",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tokopedia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IDCloudHost": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Grab": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tokopedia": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "bdee8c01-5bcb-4108-a0ba-96e79960fc39",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ba471f1d73f0afa696abfee19de2a4c3b8e1bda7786bd6c17f960f448c98e3f2"
+  },
+  "id": "nQtpAPlrgL0DAnCb",
+  "tags": []
+}
