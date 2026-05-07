@@ -1,0 +1,651 @@
+{
+  "name": "Approval-Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "approval-handler",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e58582ee-10ac-4cfa-b497-0410bcd06107",
+      "name": "Webhook",
+      "webhookId": "bf0758ad-d6e7-4bf9-965b-776066d1953d"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b4261b6d-15bf-47dd-ade1-1ba4176c5eea",
+              "leftValue": "={{ $json.query.status }}",
+              "rightValue": "approved",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "8405a249-bf84-418e-8e89-45a67ca39ebb",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1RiI-7VD4dRdSTy9rfeuWRWMNLo2_T6d_kZReSHDfjXw",
+          "mode": "list",
+          "cachedResultName": "Cuti Karyawan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RiI-7VD4dRdSTy9rfeuWRWMNLo2_T6d_kZReSHDfjXw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "DB_Karyawan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RiI-7VD4dRdSTy9rfeuWRWMNLo2_T6d_kZReSHDfjXw/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Email",
+              "lookupValue": "={{ $json.query.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        -128
+      ],
+      "id": "8d06433a-fba2-40c2-8d7d-9e589126de3b",
+      "name": "Cari Data Karyawan",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YG0E2T0iwa4JdO66",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Ambil data dari Webhook (Node paling awal)\n// Kita butuh 'days' (jumlah hari cuti) yang dikirim lewat URL\nconst webhookData = $('Webhook').first().json.query;\nconst daysRequested = parseInt(webhookData.days);\n\n// 2. Ambil data dari Google Sheets (Node sebelumnya)\n// Kita butuh 'Saldo_Cuti' saat ini\nconst currentData = items[0].json;\nconst currentBalance = parseInt(currentData.Saldo_Cuti);\n\n// 3. Hitung Saldo Baru\nconst newBalance = currentBalance - daysRequested;\n\n// 4. Return data untuk update\nreturn [{\n  json: {\n    ...currentData, // Bawa semua data lama (termasuk row_number)\n    newBalance: newBalance\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        -128
+      ],
+      "id": "43c5d61d-8359-43be-919c-79ff383971a4",
+      "name": "Hitung Saldo Baru"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1RiI-7VD4dRdSTy9rfeuWRWMNLo2_T6d_kZReSHDfjXw",
+          "mode": "list",
+          "cachedResultName": "Cuti Karyawan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RiI-7VD4dRdSTy9rfeuWRWMNLo2_T6d_kZReSHDfjXw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "DB_Karyawan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RiI-7VD4dRdSTy9rfeuWRWMNLo2_T6d_kZReSHDfjXw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.Email }}",
+            "Saldo_Cuti": "={{ $json.newBalance}}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nama_Lengkap",
+              "displayName": "Nama_Lengkap",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Saldo_Cuti",
+              "displayName": "Saldo_Cuti",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Manager_Email",
+              "displayName": "Manager_Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        864,
+        -128
+      ],
+      "id": "e8c09e1b-befc-404c-9d6b-24c6fc9f786c",
+      "name": "Update Saldo Cuti",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YG0E2T0iwa4JdO66",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1RiI-7VD4dRdSTy9rfeuWRWMNLo2_T6d_kZReSHDfjXw",
+          "mode": "list",
+          "cachedResultName": "Cuti Karyawan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RiI-7VD4dRdSTy9rfeuWRWMNLo2_T6d_kZReSHDfjXw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1732935521,
+          "mode": "list",
+          "cachedResultName": "Log Pengajuan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RiI-7VD4dRdSTy9rfeuWRWMNLo2_T6d_kZReSHDfjXw/edit#gid=1732935521"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID_Request": "={{ $('Webhook').item.json.query.id }}",
+            "Status": "Approved"
+          },
+          "matchingColumns": [
+            "ID_Request"
+          ],
+          "schema": [
+            {
+              "id": "ID_Request",
+              "displayName": "ID_Request",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email_Karyawan",
+              "displayName": "Email_Karyawan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Jenis_Cuti",
+              "displayName": "Jenis_Cuti",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tanggal_Mulai",
+              "displayName": "Tanggal_Mulai",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tanggal_Selesai",
+              "displayName": "Tanggal_Selesai",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Durasi",
+              "displayName": "Durasi",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Alasan",
+              "displayName": "Alasan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1072,
+        -128
+      ],
+      "id": "77ad14ae-827b-471f-be15-4a07194ce735",
+      "name": "Update Logs",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YG0E2T0iwa4JdO66",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Hitung Saldo Baru').item.json.Email }}",
+        "subject": "Pengajuan Cuti DISETUJUI",
+        "message": "=Halo,\n\nKabar baik! Pengajuan cuti Anda telah DISETUJUI oleh Manager.\n\nDetail:\n- Durasi: {{ $('Webhook').item.json.query.days }} Hari\n- Status: APPROVED\n- Saldo Cuti: Telah dipotong otomatis.\n\nTerima kasih,\nHR System\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1488,
+        -128
+      ],
+      "id": "506b586f-b8a2-4ce8-af67-d239966223b7",
+      "name": "Cuti Diterima",
+      "webhookId": "1dc7e743-5144-45b0-ad12-ec3bd155a3bb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FtAByi3qtk8Rdqg6",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.query.email }}",
+        "subject": "Pengajuan Cuti DITOLAK",
+        "message": "=Halo,\n\nMohon maaf, pengajuan cuti Anda untuk durasi {{ $('Webhook').item.json.query.days }} hari telah DITOLAK oleh Manager.\n\nSilakan hubungi atasan Anda untuk diskusi lebih lanjut.\n\nSalam,\nHR System\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        80
+      ],
+      "id": "fd9102fd-1711-4004-83ee-6be7db9b3f26",
+      "name": "Cuti Ditolak",
+      "webhookId": "1dc7e743-5144-45b0-ad12-ec3bd155a3bb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FtAByi3qtk8Rdqg6",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Konfirmasi: Pengajuan cuti telah berhasil DITOLAK. Tidak ada saldo yang dipotong. ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        656,
+        80
+      ],
+      "id": "02ff4896-e886-463b-9c09-02e35cd5a559",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1RiI-7VD4dRdSTy9rfeuWRWMNLo2_T6d_kZReSHDfjXw",
+          "mode": "list",
+          "cachedResultName": "Cuti Karyawan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RiI-7VD4dRdSTy9rfeuWRWMNLo2_T6d_kZReSHDfjXw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1732935521,
+          "mode": "list",
+          "cachedResultName": "Log Pengajuan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1RiI-7VD4dRdSTy9rfeuWRWMNLo2_T6d_kZReSHDfjXw/edit#gid=1732935521"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID_Request": "={{ $('Webhook').item.json.query.id }}",
+            "Status": "Rejected"
+          },
+          "matchingColumns": [
+            "ID_Request"
+          ],
+          "schema": [
+            {
+              "id": "ID_Request",
+              "displayName": "ID_Request",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email_Karyawan",
+              "displayName": "Email_Karyawan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Jenis_Cuti",
+              "displayName": "Jenis_Cuti",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tanggal_Mulai",
+              "displayName": "Tanggal_Mulai",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tanggal_Selesai",
+              "displayName": "Tanggal_Selesai",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Durasi",
+              "displayName": "Durasi",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Alasan",
+              "displayName": "Alasan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        848,
+        80
+      ],
+      "id": "c5a03765-14fb-4894-aace-e88a2a1dffa4",
+      "name": "Update Logs1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YG0E2T0iwa4JdO66",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Berhasil Pengajuan cuti telah disetujui. Saldo karyawan sudah dipotong otomatis.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1280,
+        -128
+      ],
+      "id": "e632b6fd-8254-4abb-8797-1f540472bba3",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Cari Data Karyawan",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cuti Ditolak",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cari Data Karyawan": {
+      "main": [
+        [
+          {
+            "node": "Hitung Saldo Baru",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hitung Saldo Baru": {
+      "main": [
+        [
+          {
+            "node": "Update Saldo Cuti",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Saldo Cuti": {
+      "main": [
+        [
+          {
+            "node": "Update Logs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Logs": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cuti Ditolak": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Update Logs1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "Cuti Diterima",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fd241f8d-0b4e-484b-9d25-01d467a6abc3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ba471f1d73f0afa696abfee19de2a4c3b8e1bda7786bd6c17f960f448c98e3f2"
+  },
+  "id": "JvgcOI2b8FNW7sZx",
+  "tags": []
+}
